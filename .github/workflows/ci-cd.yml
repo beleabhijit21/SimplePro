@@ -1,0 +1,33 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build Docker image
+      run: docker build -t my-node-app .
+
+    - name: Run Docker container
+      run: docker run -d -p 8000:8000 my-node-app
+
+    - name: Wait for the application to start
+      run: sleep 10
+
+    - name: Run tests
+      run: |
+        response=$(curl -s http://localhost:3000)
+        if [[ "$response" == "Hello, CI/CD World!" ]]; then
+          echo "Tests passed!"
+        else
+          echo "Tests failed!"
+          exit 1
+        fi
